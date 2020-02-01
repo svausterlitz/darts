@@ -6,6 +6,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="../darts.css">
+    <style>
+    th.selector {
+        width: 26px;
+    }
+
+    label.switch {
+        margin-bottom: 0;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked+.slider {
+        background-color: #2196F3;
+    }
+
+    input:focus+.slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked+.slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider {
+        border-radius: 34px;
+    }
+
+    .slider:before {
+        border-radius: 50%;
+    }
+    </style>
 </head>
 
 <body>
@@ -14,9 +83,30 @@
         <a href="index.html">&larr; tools</a>
         <h1 id="title">Games balancer</h1>
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-2">
                 <h2>Spelers</h2>
                 <table id="spelers" class="table table-hover table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="selector"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <table id="anderespelers" class="table table-hover table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th class="selector"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="col-lg-10">
+                <h2>Wedstrijdschema</h2>
+                <table id="Wedstrijdschema" class="table table-hover table-sm table-striped">
                     <thead>
                         <tr>
                             <th></th>
@@ -24,10 +114,6 @@
                     </thead>
                     <tbody></tbody>
                 </table>
-            </div>
-            <div class="col-lg-6">
-                <h2>Wedstrijdschema</h2>
-                <svg id="rating" class="chart"></svg>
             </div>
         </div>
     </div>
@@ -45,10 +131,10 @@
     }
 
     let add_to_spelersmatrix = function(speler, opp) {
-        if(!spelersmatrix[speler]) {
+        if (!spelersmatrix[speler]) {
             spelersmatrix[speler] = {};
         }
-        if(!spelersmatrix[speler][opp]) {
+        if (!spelersmatrix[speler][opp]) {
             spelersmatrix[speler][opp] = 0;
         }
         spelersmatrix[speler][opp]++;
@@ -58,16 +144,39 @@
         // bouw matrix spelers
         let games = dartsapp['data']['competitions'][c]['games'];
 
-        for (let i =0; i<games.length;i++) {
+        for (let i = 0; i < games.length; i++) {
             let game = games[i];
-            // console.log(game);
-
             add_to_spelersmatrix(game['speler1_naam'], game['speler2_naam']);
             add_to_spelersmatrix(game['speler2_naam'], game['speler1_naam']);
         }
 
         // de keys van de spelersmatrix zijn de spelers in het systeem
-        let current_
+        let spelers = Object.keys(spelersmatrix).sort();
+        let andere_spelers = dartsapp.data["index"]["spelers"].slice().sort();
+
+        spelers.forEach(function(s) {
+            let i = andere_spelers.indexOf(s);
+            andere_spelers.splice(i, 1)
+        })
+
+        andere_spelers = ['Nieuwe speler 1', 'Nieuwe speler 2', 'Nieuwe speler 3'].concat(andere_spelers)
+        console.log(spelers)
+        console.log(andere_spelers)
+
+        let put_array_in_table = function(s_array, tableid) {
+            let spelers_rows = d3.select('table#'+tableid).select('tbody').selectAll('tr').data(s_array);
+
+            let new_spelers_rows = spelers_rows.enter().append('tr');
+            new_spelers_rows.append('td').text(function(d) { return d; })
+            let l = new_spelers_rows.append('td').append('label').attr('class', 'switch')
+            l.append('input').attr('type', 'checkbox')
+            l.append('span').attr('class', 'slider')
+        }
+
+        put_array_in_table(spelers,'spelers')
+        put_array_in_table(andere_spelers,'anderespelers')
+
+
 
     }
 
