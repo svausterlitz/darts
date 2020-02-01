@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>overzicht speler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../darts.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <a href="../index.html">&larr; overzicht</a>
+        <a href="index.html">&larr; tools</a>
+        <h1 id="title">Games balancer</h1>
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>Spelers</h2>
+                <table id="spelers" class="table table-hover table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="col-lg-6">
+                <h2>Wedstrijdschema</h2>
+                <svg id="rating" class="chart"></svg>
+            </div>
+        </div>
+    </div>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="../bbdataviz.js"></script>
+    <script src="../dartsapp.js"></script>
+    <script>
+    let c;
+    let spelersmatrix = {};
+
+    let load_competition = function() {
+        // console.log(dartsapp.data.index)
+        c = dartsapp['data']['index']['competitions'].sort().reverse()[0];
+        dartsapp.load_data(draw_page, { 'seizoenen': [c], })
+    }
+
+    let add_to_spelersmatrix = function(speler, opp) {
+        if(!spelersmatrix[speler]) {
+            spelersmatrix[speler] = {};
+        }
+        if(!spelersmatrix[speler][opp]) {
+            spelersmatrix[speler][opp] = 0;
+        }
+        spelersmatrix[speler][opp]++;
+    }
+
+    let draw_page = function() {
+        // bouw matrix spelers
+        let games = dartsapp['data']['competitions'][c]['games'];
+
+        for (let i =0; i<games.length;i++) {
+            let game = games[i];
+            // console.log(game);
+
+            add_to_spelersmatrix(game['speler1_naam'], game['speler2_naam']);
+            add_to_spelersmatrix(game['speler2_naam'], game['speler1_naam']);
+        }
+
+        // de keys van de spelersmatrix zijn de spelers in het systeem
+        let current_
+
+    }
+
+    dartsapp.root = '../';
+    dartsapp.load_data(load_competition, { 'index': true, })
+    </script>
+</body>
+
+</html>
