@@ -83,7 +83,7 @@
         <a href="index.html">&larr; tools</a>
         <h1 id="title">Games balancer</h1>
         <div class="row">
-            <div class="col-lg-2">
+            <div class="col-sm-2">
                 <h2>Spelers</h2>
                 <table id="spelers" class="table table-hover table-sm table-striped">
                     <thead>
@@ -104,12 +104,24 @@
                     <tbody></tbody>
                 </table>
             </div>
-            <div class="col-lg-10">
+            <div class="col-sm-10">
                 <h2>Wedstrijdschema</h2>
-                <table id="Wedstrijdschema" class="table table-hover table-sm table-striped">
+                <table id="wedstrijdschema" class="table table-hover table-sm table-striped">
                     <thead>
                         <tr>
-                            <th></th>
+                            <th>Ronde</th>
+                            <th>Speler 1</th>
+                            <th>Speler 2</th>
+                            <th>Schrijver</th>
+                            <th>Bord</th>
+                            <th>S1 Legs</th>
+                            <th>S2 Legs</th>
+                            <th>S1 Lolly's</th>
+                            <th>S2 Lolly's</th>
+                            <th>S1 180s</th>
+                            <th>S2 180s</th>
+                            <th>S1 Finish</th>
+                            <th>S2 Finish</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -123,6 +135,7 @@
     <script>
     let c;
     let spelersmatrix = {};
+    let selected_spelers = [];
 
     let load_competition = function() {
         // console.log(dartsapp.data.index)
@@ -138,6 +151,21 @@
             spelersmatrix[speler][opp] = 0;
         }
         spelersmatrix[speler][opp]++;
+    }
+
+    let generate_games = function() {
+        // clear table
+        d3.select('table#wedstrijdschema').select('tbody').remove();
+        let tbody = d3.select('table#wedstrijdschema').append('tbody');
+
+        console.log(selected_spelers, spelersmatrix);
+
+        if(selected_spelers.length < 5) {
+            return;
+        } 
+
+        
+
     }
 
     let draw_page = function() {
@@ -160,24 +188,31 @@
         })
 
         andere_spelers = ['Nieuwe speler 1', 'Nieuwe speler 2', 'Nieuwe speler 3'].concat(andere_spelers)
-        console.log(spelers)
-        console.log(andere_spelers)
 
         let put_array_in_table = function(s_array, tableid) {
-            let spelers_rows = d3.select('table#'+tableid).select('tbody').selectAll('tr').data(s_array);
+            let spelers_rows = d3.select('table#' + tableid).select('tbody').selectAll('tr').data(s_array);
 
             let new_spelers_rows = spelers_rows.enter().append('tr');
             new_spelers_rows.append('td').text(function(d) { return d; })
             let l = new_spelers_rows.append('td').append('label').attr('class', 'switch')
             l.append('input').attr('type', 'checkbox')
+                .on('change', function(speler) {
+                    if (this.checked) {
+                        selected_spelers.push(speler)
+                        selected_spelers.sort();
+                    } else {
+                        let i = selected_spelers.indexOf(speler);
+                        selected_spelers.splice(i, 1)
+                    }
+                    // console.log(selected_spelers);
+                    generate_games();
+                })
             l.append('span').attr('class', 'slider')
+
         }
 
-        put_array_in_table(spelers,'spelers')
-        put_array_in_table(andere_spelers,'anderespelers')
-
-
-
+        put_array_in_table(spelers, 'spelers')
+        put_array_in_table(andere_spelers, 'anderespelers')
     }
 
     dartsapp.root = '../';
