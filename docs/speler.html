@@ -29,7 +29,7 @@
                     <thead>
                         <tr>
                             <th></th>
-                            <th colspan="4">laatste 12 maanden</th>
+                            <th colspan="4" id="lastseason">laatste 12 maanden</th>
                             <th colspan="4">vanaf 2016</th>
                         </tr>
                         <tr>
@@ -85,6 +85,17 @@
         // in deze context doen we niet moeilijk over schrikkeljaren
         yearago.setDate(yearago.getDate() - 365);
 
+        let seasons = [];
+        dartsapp.data.spelers[p['speler']]['avonden'].forEach(function(a) {
+            if(!seasons.includes(a.comp)) {
+                seasons.push(a.comp);
+            }
+        })
+        seasons.sort().reverse();
+        let lastseason = seasons[0];
+
+        d3.select('th#lastseason').text('Seizoen ' + lastseason.substr(-9));
+
         for (let i in games) {
             let game = games[i]
             let game_speler = 2
@@ -101,49 +112,47 @@
                     "wins": 0,
                     "losses": 0,
                     "rating_adj": 0,
-                    "games12": 0,
-                    "wins12": 0,
-                    "losses12": 0,
-                    "rating_adj12": 0,
+                    "games_season": 0,
+                    "wins_season": 0,
+                    "losses_season": 0,
+                    "rating_adj_season": 0,
                 }
             }
 
-            let ya = game.date >= yearago
+            let ya = game.comp == lastseason;
             per_tegenstander[tegenstander_naam]['games']++
             per_tegenstander[tegenstander_naam]['rating_adj'] += game['speler_rating_adj']
             if (ya) {
-                per_tegenstander[tegenstander_naam]['games12']++
-                per_tegenstander[tegenstander_naam]['rating_adj12'] += game['speler_rating_adj']
+                per_tegenstander[tegenstander_naam]['games_season']++
+                per_tegenstander[tegenstander_naam]['rating_adj_season'] += game['speler_rating_adj']
             }
 
             if (game['speler' + game_speler + '_legs'] < game['speler' + game_tegenstander + '_legs']) {
                 per_tegenstander[tegenstander_naam]['losses']++
                 if (ya) {
-                    per_tegenstander[tegenstander_naam]['losses12']++
+                    per_tegenstander[tegenstander_naam]['losses_season']++
                 }
             } else {
                 per_tegenstander[tegenstander_naam]['wins']++
                 if (ya) {
-                    per_tegenstander[tegenstander_naam]['wins12']++
+                    per_tegenstander[tegenstander_naam]['wins_season']++
                 }
             }
-
-
-
         }
+
         let pt = d3.entries(per_tegenstander)
             .sort(function(a, b) {
-                return (b.value.games12 - a.value.games12) * 1000 + (b.value.games - a.value.games);
+                return (b.value.games_season - a.value.games_season) * 1000 + (b.value.games - a.value.games);
             });
 
         let ptrows = d3.select('table#tegenstanders').select('tbody').selectAll('tr')
             .data(pt, function(d) { return d.key });
         let newptrows = ptrows.enter().append('tr')
         newptrows.append('td').text(function(d) { return d["key"] })
-        newptrows.append('td').text(function(d) { return d["value"]["games12"] })
-        newptrows.append('td').text(function(d) { return d["value"]["wins12"] })
-        newptrows.append('td').text(function(d) { return d["value"]["losses12"] })
-        newptrows.append('td').text(function(d) { return d["value"]["rating_adj12"] })
+        newptrows.append('td').text(function(d) { return d["value"]["games_season"] })
+        newptrows.append('td').text(function(d) { return d["value"]["wins_season"] })
+        newptrows.append('td').text(function(d) { return d["value"]["losses_season"] })
+        newptrows.append('td').text(function(d) { return d["value"]["rating_adj_season"] })
         newptrows.append('td').text(function(d) { return d["value"]["games"] })
         newptrows.append('td').text(function(d) { return d["value"]["wins"] })
         newptrows.append('td').text(function(d) { return d["value"]["losses"] })

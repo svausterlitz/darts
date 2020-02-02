@@ -105,8 +105,8 @@
                 </table>
             </div>
             <div class="col-sm-10">
-                <h2>Wedstrijdschema</h2>
-                <table id="wedstrijdschema" class="table table-hover table-sm table-striped">
+                <h2>Wedstrijdschema <button class="btn btn-primary" onclick="copy_table();">kopieer tabel</button></h2>
+                <table id="wedstrijdschema" class="table table-sm">
                     <thead>
                         <tr>
                             <th>Ronde</th>
@@ -153,19 +153,211 @@
         spelersmatrix[speler][opp]++;
     }
 
+    let get_game_number = function(speler1, speler2) {
+        if (
+            !spelersmatrix[speler1] ||
+            !spelersmatrix[speler1][speler2]
+        ) {
+            return 0;
+        } else {
+            return spelersmatrix[speler1][speler2];
+        }
+
+
+    }
+
+    let find_least_played = function(speler, lijstje) {
+        // vind de speler uit het lijstje dat het minst tegen speler speelde
+
+        let md = spelersmatrix[speler];
+        let aantallen = [];
+
+        lijstje.forEach(function(s) {
+            aantallen.push({
+                'speler': s,
+                'aantal': md[s],
+            })
+        })
+
+        // shuffle, om gelijke aantallen. gaat uit van stable sort.
+        let shuffled = [];
+        while (aantallen.length > 0) {
+            shuffled.push(
+                aantallen.splice(
+                    Math.floor(Math.random() * aantallen.length), 1
+                )[0])
+        }
+
+        shuffled.sort(function(a, b) {
+            return a.aantal - b.aantal;
+        })
+
+        // geeft het hele lijstje, gesorteerd op aantal keer gespeeld. 
+        return shuffled;
+    }
+
     let generate_games = function() {
         // clear table
         d3.select('table#wedstrijdschema').select('tbody').remove();
         let tbody = d3.select('table#wedstrijdschema').append('tbody');
 
-        console.log(selected_spelers, spelersmatrix);
+        // console.log(selected_spelers, spelersmatrix);
 
-        if(selected_spelers.length < 5) {
+        if (selected_spelers.length < 9) {
             return;
-        } 
+        }
 
-        
+        let wedstrijden = [];
+        let spelersindex = Array.from(Array(selected_spelers.length).keys())
+        let spelers = [];
+        while (spelersindex.length > 0) {
+            let draw = spelersindex.splice(Math.floor(Math.random() * spelersindex.length), 1)[0];
+            spelers.push(selected_spelers[draw])
+        }
 
+        for (let i = 1; i <= 2; i++) {
+            for (let j = 0; j < spelers.length; j++) {
+                // loop spelers langs en wijs toe
+                let oi = j + (i);
+                if (oi >= spelers.length) {
+                    oi -= spelers.length;
+                }
+                let wedstrijd = {
+                    speler1: spelers[j],
+                    speler2: spelers[oi],
+                    rep: get_game_number(spelers[j], spelers[oi]),
+                    schrijver: '',
+                    ronde: 0,
+                }
+                wedstrijden.push(wedstrijd);
+            }
+        }
+
+
+        max_pogingen = 100;
+
+        // wedstrijden.sort(function(a, b) {
+        //     return b.rep - a.rep;
+        // })
+        // console.log(JSON.parse(JSON.stringify(wedstrijden)))
+
+        let ballenbak = [];
+
+        for (let poging = 1; poging < max_pogingen; poging++) {
+
+            // optimize: probeer het aantal reps zo laag mogelijk te krijgen
+            // vind de wedstrijd met het hoogste aantal reps.
+            wedstrijden.sort(function(a, b) {
+                return b.rep - a.rep;
+            })
+            let primair_game = wedstrijden[0];
+
+            let primair = 0;
+            let compare = 0;
+            let replace = {
+                optie1: undefined,
+                optie2: undefined,
+            }
+
+            for (let i = 1; i < wedstrijden.length; i++) {
+                // loop de andere wedstrijden na om te zoeken naar een combinatie met
+                // een lager aantal reps.
+                let compare_game = wedstrijden[i];
+                let best = primair_game.rep + compare_game.rep;
+
+
+                //switch players to try;
+
+                // let ()
+
+                let optie1 = {
+                    speler1: primair_game.speler1,
+                    speler2: compare_game.speler2,
+                    rep: get_game_number(primair_game.speler1, compare_game.speler2),
+                    schrijver: '',
+                    ronde: 0,
+                }
+                let optie2 = {
+                    speler1: compare_game.speler1,
+                    speler2: primair_game.speler2,
+                    rep: get_game_number(compare_game.speler1, primair_game.speler2),
+                    schrijver: '',
+                    ronde: 0,
+                }
+
+                // voorwaarde niemand speelt tegen zichzelf
+                if (optie1.speler1 == optie1.speler2 || optie2.speler1 == optie2.speler2) {
+                    continue;
+                }
+
+                // voorwaarde wedstrijd is uniek op de avond, ook niet omgekeerd.
+
+                let uniek = true;
+                for (let j = 0; j < wedstrijden.length; j++) {
+                    let cgame = wedstrijden[j];
+
+                    if (cgame.speler1 == optie1.speler1 && cgame.speler2 == optie1.speler2) {
+                        uniek = false;
+                    }
+                    if (cgame.speler2 == optie1.speler1 && cgame.speler1 == optie1.speler2) {
+                        uniek = false;
+                    }
+                    if (cgame.speler1 == optie2.speler1 && cgame.speler2 == optie2.speler2) {
+                        uniek = false;
+                    }
+                    if (cgame.speler2 == optie2.speler1 && cgame.speler1 == optie2.speler2) {
+                        uniek = false;
+                    }
+
+                    if (!uniek) {
+                        break;
+                    }
+                }
+
+                if (!uniek) {
+                    continue;
+                }
+                // console.log(primair_game, compare_game, optie1, optie2)
+
+                if (best > (optie1.rep + optie2.rep)) {
+                    compare = i;
+                    replace.optie1 = optie1;
+                    replace.optie2 = optie2;
+                }
+            }
+
+            // console.log(compare, replace);
+
+            if (compare) {
+                // betere combo gevonden. Gebruik en probeer opnieuw;
+                wedstrijden[primair] = replace.optie1
+                wedstrijden[compare] = replace.optie2
+            } else {
+                ballenbak.push(wedstrijden.splice(0, 1)[0])
+            }
+
+            if (wedstrijden.length < 3) {
+                wedstrijden = wedstrijden.concat(ballenbak);
+                ballenbak = [];
+            }
+        }
+        wedstrijden = wedstrijden.concat(ballenbak);
+
+        // todo: zodanig sorteren dat gelijkmatig verspreid over de avond
+        wedstrijden.sort(function(a, b) {
+            return b.rep - a.rep;
+        })
+        console.log(wedstrijden)
+
+        let tr = d3.select('table#wedstrijdschema tbody').selectAll('tr').data(wedstrijden);
+
+        let newtr = tr.enter().append('tr');
+        newtr.append('td').text(function(d) { return d.ronde })
+        newtr.append('td').text(function(d) { return d.speler1 })
+        newtr.append('td').text(function(d) { return d.speler2 })
+        newtr.append('td').text(function(d) { return d.schrijver })
+
+        d3.select('table#wedstrijdschema tbody').append('tr')
     }
 
     let draw_page = function() {
@@ -195,7 +387,11 @@
             let new_spelers_rows = spelers_rows.enter().append('tr');
             new_spelers_rows.append('td').text(function(d) { return d; })
             let l = new_spelers_rows.append('td').append('label').attr('class', 'switch')
-            l.append('input').attr('type', 'checkbox')
+            l.append('input')
+                .attr('type', 'checkbox')
+                .attr('id', function(d) {
+                    return d;
+                })
                 .on('change', function(speler) {
                     if (this.checked) {
                         selected_spelers.push(speler)
@@ -215,8 +411,49 @@
         put_array_in_table(andere_spelers, 'anderespelers')
     }
 
+    var bla
+
+    let copy_table = function() {
+        CopyToClipboard("wedstrijdschema");
+    }
+
+    // van https://stackoverflow.com/questions/48554043/javascript-copy-element-to-clipboard-with-all-styles
+    function CopyToClipboard(element) {
+        var doc = document,
+            text = doc.getElementById(element),
+            range, selection;
+
+        if (doc.body.createTextRange) {
+            range = doc.body.createTextRange();
+            range.moveToElementText(text);
+            range.select();
+        } else if (window.getSelection) {
+            selection = window.getSelection();
+            range = doc.createRange();
+            range.selectNodeContents(text);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+        // document.getElementById("btn").value = "Copied";
+    }
+
     dartsapp.root = '../';
     dartsapp.load_data(load_competition, { 'index': true, })
+
+    // voor test, scheelt klikken
+    window.setTimeout(function() {
+        d3.select('input#Andor').node().click()
+        d3.select('input#Bas').node().click()
+        d3.select('input#Bert').node().click()
+        d3.select('input#Colin').node().click()
+        d3.select('input#Elbert').node().click()
+        d3.select('input#Ernie').node().click()
+        d3.select('input#Henri').node().click()
+        d3.select('input#Jari').node().click()
+        d3.select('input#Pietra').node().click()
+    }, 1500);
     </script>
 </body>
 
