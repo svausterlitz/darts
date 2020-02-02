@@ -105,7 +105,7 @@
                 </table>
             </div>
             <div class="col-sm-10">
-                <h2>Wedstrijdschema <button class="btn btn-primary" onclick="copy_table();">kopieer tabel</button></h2>
+                <h2> <button class="btn btn-primary" onclick="startloting();">Loting &rarr;</button> Wedstrijdschema</h2>
                 <table id="wedstrijdschema" class="table table-sm">
                     <thead>
                         <tr>
@@ -138,7 +138,6 @@
     let selected_spelers = [];
 
     let load_competition = function() {
-        // console.log(dartsapp.data.index)
         c = dartsapp['data']['index']['competitions'].sort().reverse()[0];
         dartsapp.load_data(draw_page, { 'seizoenen': [c], })
     }
@@ -201,9 +200,7 @@
         d3.select('table#wedstrijdschema').select('tbody').remove();
         let tbody = d3.select('table#wedstrijdschema').append('tbody');
 
-        // console.log(selected_spelers, spelersmatrix);
-
-        if (selected_spelers.length < 9) {
+        if (selected_spelers.length < 5) {
             return;
         }
 
@@ -233,17 +230,13 @@
             }
         }
 
-
-        max_pogingen = 100;
-
-        // wedstrijden.sort(function(a, b) {
-        //     return b.rep - a.rep;
-        // })
-        // console.log(JSON.parse(JSON.stringify(wedstrijden)))
+        // ik kan natuurlijk detecteren waneer een optimum is bereikt.
+        // Dat is veel werk, premature optimization wat mij betreft. 
+        aantal_pogingen = 500;
 
         let ballenbak = [];
 
-        for (let poging = 1; poging < max_pogingen; poging++) {
+        for (let poging = 1; poging < aantal_pogingen; poging++) {
 
             // optimize: probeer het aantal reps zo laag mogelijk te krijgen
             // vind de wedstrijd met het hoogste aantal reps.
@@ -317,7 +310,6 @@
                 if (!uniek) {
                     continue;
                 }
-                // console.log(primair_game, compare_game, optie1, optie2)
 
                 if (best > (optie1.rep + optie2.rep)) {
                     compare = i;
@@ -325,8 +317,6 @@
                     replace.optie2 = optie2;
                 }
             }
-
-            // console.log(compare, replace);
 
             if (compare) {
                 // betere combo gevonden. Gebruik en probeer opnieuw;
@@ -343,11 +333,64 @@
         }
         wedstrijden = wedstrijden.concat(ballenbak);
 
-        // todo: zodanig sorteren dat gelijkmatig verspreid over de avond
-        wedstrijden.sort(function(a, b) {
-            return b.rep - a.rep;
-        })
-        console.log(wedstrijden)
+
+        // zodanig sorteren dat gelijkmatig verspreid over de avond
+
+        let volgorde = [];
+        ballenbak = [];
+        let ronde = 0;
+
+        let bepaal_distance = function(game) {
+            let ds1 = 999;
+            let ds2 = 999;
+            for (let i = 0; i < volgorde.length; i++) {
+                // loop reeds geplaatste wedstrijden van onder naar boven
+                // door. Bepaal de afstand voor beide spelers
+                let cgame = volgorde[i];
+                if (game.speler1 == cgame.speler1 || game.speler1 == cgame.speler2) {
+                    ds1 = Math.min(ds1, i);
+                }
+                if (game.speler2 == cgame.speler1 || game.speler2 == cgame.speler2) {
+                    ds2 = Math.min(ds2, i);
+                }
+            }
+            return [ds1, ds2];
+        }
+
+        let count = 0;
+        let min_distance = Math.ceil(selected_spelers.length / 2) + 1;
+
+        while (wedstrijden.length > 0 || ballenbak.length > 0) {
+            let candidate;
+
+            if (wedstrijden.length == 0) {
+                wedstrijden = ballenbak;
+                ballenbak = [];
+                if (count) {
+                    ronde++
+                    min_distance++;
+                    count = 0;
+                } else {
+                    min_distance--
+                }
+            }
+
+            let game = wedstrijden.shift();
+            game.ronde = ronde;
+
+            let [ds1, ds2] = bepaal_distance(game);
+
+            if (ds1 > min_distance && ds2 > min_distance) {
+                count++;
+                volgorde.unshift(game);
+            } else {
+                ballenbak.push(game);
+            }
+
+
+        }
+
+        wedstrijden = volgorde.reverse();
 
         let tr = d3.select('table#wedstrijdschema tbody').selectAll('tr').data(wedstrijden);
 
@@ -400,8 +443,6 @@
                         let i = selected_spelers.indexOf(speler);
                         selected_spelers.splice(i, 1)
                     }
-                    // console.log(selected_spelers);
-                    generate_games();
                 })
             l.append('span').attr('class', 'slider')
 
@@ -413,7 +454,8 @@
 
     var bla
 
-    let copy_table = function() {
+    let startloting = function() {
+        generate_games();
         CopyToClipboard("wedstrijdschema");
     }
 
@@ -444,15 +486,15 @@
 
     // voor test, scheelt klikken
     window.setTimeout(function() {
-        d3.select('input#Andor').node().click()
-        d3.select('input#Bas').node().click()
-        d3.select('input#Bert').node().click()
-        d3.select('input#Colin').node().click()
-        d3.select('input#Elbert').node().click()
-        d3.select('input#Ernie').node().click()
-        d3.select('input#Henri').node().click()
-        d3.select('input#Jari').node().click()
-        d3.select('input#Pietra').node().click()
+        // d3.select('input#Andor').node().click()
+        // d3.select('input#Bas').node().click()
+        // d3.select('input#Bert').node().click()
+        // d3.select('input#Colin').node().click()
+        // d3.select('input#Elbert').node().click()
+        // d3.select('input#Ernie').node().click()
+        // d3.select('input#Henri').node().click()
+        // d3.select('input#Jari').node().click()
+        // d3.select('input#Pietra').node().click()
     }, 1500);
     </script>
 </body>
