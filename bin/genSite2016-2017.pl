@@ -318,7 +318,7 @@ sub updatePage {
     my $content
         = "<h1>$pages->{$name}->{title}</h1>"
         . "<h3>Bijgewerkt t/m $updateuntil</h3>"
-        . '<p>Voor veel meer details: <a href="https://basbloemsaat.github.io/dartsense/seizoen.html?seizoen=Austerlitz_seizoen_2019-2020">gedetailleerd overzicht</a></p>'
+        . '<p>Voor veel meer details: <a href="https://svausterlitz.github.io/darts/seizoen.html?seizoen=Austerlitz_seizoen_2019-2020">gedetailleerd overzicht</a></p>'
         . $table
         . '<p><hr>'
         . 'updated '
