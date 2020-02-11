@@ -50,20 +50,7 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <h2>wedstrijden</h2>
-                <table id="games" class="table table-hover table-sm">
-                    <thead>
-                        <th>datum</th>
-                        <th class="speler1">speler</th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th>speler</th>
-                        <th>elo rating</th>
-                        <th>seizoen</th>
-                    </thead>
-                    <tbody> </tbody>
-                </table>
+                <a id="speler_wedstrijden" href="#">Lijst met wedstrijden</a>
             </div>
         </div>
     </div>
@@ -76,6 +63,7 @@
     let p = bbdataviz.url_params();
     let s = p['speler'];
     d3.select('h1#title').text(s)
+    d3.select('a#speler_wedstrijden').attr('href','speler_wedstrijden.html?speler=' + s)
 
     let draw_page = function() {
         let games = dartsapp.data.spelers[p['speler']]['games'];
@@ -87,7 +75,7 @@
 
         let seasons = [];
         dartsapp.data.spelers[p['speler']]['avonden'].forEach(function(a) {
-            if(!seasons.includes(a.comp)) {
+            if (!seasons.includes(a.comp)) {
                 seasons.push(a.comp);
             }
         })

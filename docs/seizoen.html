@@ -34,19 +34,7 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <h2>wedstrijden</h2>
-                <table id="games" class="table table-hover table-sm table-striped">
-                    <thead>
-                        <th>datum</th>
-                        <th class="speler1">speler</th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th>speler</th>
-                        <th></th>
-                    </thead>
-                    <tbody> </tbody>
-                </table>
+                <a id="seizoen_wedstrijden" href="#">Lijst met wedstrijden</a>
             </div>
         </div>
     </div>
@@ -60,7 +48,10 @@
     let s = p['seizoen'];
     d3.select('h1#title').text(s)
 
+    d3.select('a#seizoen_wedstrijden').attr('href','seizoen_wedstrijden.html?seizoen=' + s)
+
     let draw_page = function() {
+        // standings
         let standings = dartsapp.data.competitions[s].standings;
         standings.sort(function(a, b) {
             return 10000 * (b.speler_punten - a.speler_punten) + a.speler_games - b.speler_games
@@ -81,65 +72,7 @@
         standnewrows.append('td').text(function(d) { return d.speler_finishes })
         standnewrows.append('td').text(function(d) { return d.speler_lollies })
 
-        let games = dartsapp.data.competitions[s].games;
-        games.sort(function(a, b) {
-            return b.game_order - a.game_order;
-        })
-
-        let gamerows = d3.select('table#games').select('tbody').selectAll('tr')
-            .data(games, function(d) { return d.game_id });
-        let newrows = gamerows.enter().append('tr')
-        newrows.append('td')
-            .classed('datum', true)
-            .text(function(d) { return d.datum })
-        newrows.append('td')
-            .classed('speler1', true)
-            .text(function(d) { return d.speler1_naam })
-        newrows.append('td')
-            .classed('speler1', true)
-            .text(function(d) { return d.speler1_legs })
-        newrows.append('td')
-            .classed('center', true)
-            .text(' - ')
-        newrows.append('td').text(function(d) { return d.speler2_legs })
-        newrows.append('td').text(function(d) { return d.speler2_naam })
-        newrows.append('td').text(function(d) {
-            let a180s = [];
-            if (d.speler1_180s > 0) {
-                a180s.push(d.speler1_naam + ':' + d.speler1_180s)
-            }
-            if (d.speler2_180s > 0) {
-                a180s.push(d.speler2_naam + ':' + d.speler2_180s)
-            }
-
-            let afinishes = [];
-            if (d.speler1_finishes != 0) {
-                afinishes.push(d.speler1_naam + ':' + d.speler1_finishes)
-            }
-            if (d.speler2_finishes != 0) {
-                afinishes.push(d.speler2_naam + ':' + d.speler2_finishes)
-            }
-
-            let alollies = [];
-            if (d.speler1_lollies > 0) {
-                alollies.push(d.speler1_naam + ':' + d.speler1_lollies)
-            }
-            if (d.speler2_lollies > 0) {
-                alollies.push(d.speler2_naam + ':' + d.speler2_lollies)
-            }
-
-            let retval = '';
-            if (a180s.length > 0) {
-                retval += a180s.join(',') + ' x 180'
-            }
-
-            if (alollies.length > 0) {
-                retval += alollies.join(',') + ' lollie'
-            }
-
-            return retval + afinishes.join(',');
-
-        })
+      
     }
 
     dartsapp.load_data(draw_page, { 'seizoenen': [s], })
