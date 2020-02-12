@@ -136,7 +136,12 @@
         let ptrows = d3.select('table#tegenstanders').select('tbody').selectAll('tr')
             .data(pt, function(d) { return d.key });
         let newptrows = ptrows.enter().append('tr')
-        newptrows.append('td').text(function(d) { return d["key"] })
+        newptrows.append('td')
+            .append('a')
+            .attr('href',function(d) {
+                return 'head2head.html?speler=' + s + '&opponent=' + d["key"]
+            })
+            .text(function(d) { return d["key"] })
         newptrows.append('td').text(function(d) { return d["value"]["games_season"] })
         newptrows.append('td').text(function(d) { return d["value"]["wins_season"] })
         newptrows.append('td').text(function(d) { return d["value"]["losses_season"] })
