@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>overzicht speler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="darts.css">
+    <style>
+    table#overzicht th {
+        text-align: center;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <a href="index.html">&larr; overzicht</a>
+        <h1 id="title">h2h</h1>
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>punten</h2>
+                <svg id="punten" class="chart"></svg>
+            </div>
+            <div class="col-lg-6">
+                <h2>rating</h2>
+                <svg id="rating" class="chart"></svg>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>per tegenstander</h2>
+                <table id="overzicht" class="table table-hover table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th colspan="2" id="speler1_th">1</th>
+                            <th colspan="2" id="speler2_th">2</th>
+                        </tr>
+                        <tr>
+                            <th>2-0</th>
+                            <th>2-1</th>
+                            <th>1-2</th>
+                            <th>0-2</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="./bbdataviz.js"></script>
+    <script src="./dartsapp.js"></script>
+    <script>
+    let p = bbdataviz.url_params();
+    let speler1 = p['speler'];
+    let speler2 = p['opponent'];
+    d3.select('h1#title').text('Overzicht ' + speler1 + ' vs ' + speler2)
+
+
+    d3.select('th#speler1_th').text(speler1)
+    d3.select('th#speler2_th').text(speler2)
+
+    let draw_page = function() {
+        let h2h_games = [];
+
+        let games = dartsapp.data['spelers'][speler1]['games'];
+        // console.log(games);
+        games.forEach(function(g) {
+            let game = {
+                'speler1': undefined,
+                'speler2': undefined,
+            }
+            if (g.speler1_naam == speler1 && g.speler2_naam == speler2) {
+                console.log(g);
+            }
+        })
+    }
+
+    dartsapp.load_data(draw_page, { 'spelers': [speler1], })
+    </script>
+</body>
+
+</html>

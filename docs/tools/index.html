@@ -261,6 +261,7 @@
                 optie2: undefined,
             }
 
+
             for (let i = 1; i < wedstrijden.length; i++) {
                 // loop de andere wedstrijden na om te zoeken naar een combinatie met
                 // een lager aantal reps.
@@ -294,9 +295,12 @@
 
                 // voorwaarde wedstrijd is uniek op de avond, ook niet omgekeerd.
 
+                let cmp_array = JSON.parse(JSON.stringify(wedstrijden))
+                    .concat(JSON.parse(JSON.stringify(ballenbak)))
+
                 let uniek = true;
-                for (let j = 0; j < wedstrijden.length; j++) {
-                    let cgame = wedstrijden[j];
+                for (let j = 0; j < cmp_array.length; j++) {
+                    let cgame = cmp_array[j];
 
                     if (cgame.speler1 == optie1.speler1 && cgame.speler2 == optie1.speler2) {
                         uniek = false;
@@ -449,7 +453,7 @@
         newtr.append('td').text(function(d) { return d.speler1 })
         newtr.append('td').text(function(d) { return d.speler2 })
         newtr.append('td')
-            .classed('smaller',true)
+            .classed('smaller', true)
             .text(function(d) { return d.schrijver })
 
         d3.select('table#wedstrijdschema tbody').append('tr')
@@ -535,15 +539,16 @@
     dartsapp.load_data(load_competition, { 'index': true, })
 
     // voor test, scheelt klikken
+
     // window.setTimeout(function() {
     //     d3.select('input#Andor').node().click()
     //     d3.select('input#Bas').node().click()
-    //     d3.select('input#Bert').node().click()
-    //     d3.select('input#Colin').node().click()
+    //     d3.select('input#Christa').node().click()
     //     d3.select('input#Elbert').node().click()
-    //     d3.select('input#Ernie').node().click()
-    //     d3.select('input#Henri').node().click()
     //     d3.select('input#Jari').node().click()
+    //     d3.select('input#Johan').node().click()
+    //     d3.select('input#Menno').node().click()
+    //     d3.select('input#Henri').node().click()
     //     d3.select('input#Pietra').node().click()
     //     startloting();
     // }, 1500);
