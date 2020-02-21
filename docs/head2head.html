@@ -189,7 +189,7 @@
             });
         })
 
-        let stats_array = [stats.total, stats.latest, stats.earlier]
+        let stats_array = [stats.latest, stats.earlier, stats.total, ]
         console.log(stats);
         let rows = d3.select('table#overzicht tbody').selectAll('tr').data(stats_array);
 
