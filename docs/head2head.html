@@ -80,7 +80,6 @@
         let competitions = [];
 
         let games = dartsapp.data['spelers'][speler1]['games'];
-        // console.log(games);
         games.forEach(function(g) {
             if (!competitions.includes(g.comp)) {
                 competitions.push(g.comp);
@@ -121,8 +120,6 @@
 
         competitions.sort().reverse();
         const latest_comp = competitions[0];
-
-        console.log(h2h_games, competitions);
 
         let stats_row = {
             games: 0,
@@ -190,7 +187,6 @@
         })
 
         let stats_array = [stats.latest, stats.earlier, stats.total, ]
-        console.log(stats);
         let rows = d3.select('table#overzicht tbody').selectAll('tr').data(stats_array);
 
         let tr = rows.enter().append('tr')

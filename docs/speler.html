@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="darts.css">
+    <style>
+    table#stats th,
+    td {
+        text-align: center;
+    }
+
+    td.comp {
+        text-align: right;
+    }
+    </style>
 </head>
 
 <body>
@@ -24,6 +34,37 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
+                <h2>stats</h2>
+                <table id="stats" class="table table-hover table-sm table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>gespeeld</th>
+                            <th colspan="2">gewonnen</th>
+                            <th colspan="2">verloren</th>
+                            <th>180s</th>
+                            <th>100+</th>
+                            <th>lollies</th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>2-0</th>
+                            <th>2-1</th>
+                            <th>1-2</th>
+                            <th>0-2</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
                 <h2>per tegenstander</h2>
                 <table id="tegenstanders" class="table table-hover table-sm table-striped">
                     <thead>
@@ -34,7 +75,7 @@
                         </tr>
                         <tr>
                             <th></th>
-                            <th>aantal</th>
+                            <th>gespeeld</th>
                             <th>gewonnen</th>
                             <th>verloren</th>
                             <th>rating</th>
@@ -63,7 +104,7 @@
     let p = bbdataviz.url_params();
     let s = p['speler'];
     d3.select('h1#title').text(s)
-    d3.select('a#speler_wedstrijden').attr('href','speler_wedstrijden.html?speler=' + s)
+    d3.select('a#speler_wedstrijden').attr('href', 'speler_wedstrijden.html?speler=' + s)
 
     let draw_page = function() {
         let games = dartsapp.data.spelers[p['speler']]['games'];
@@ -81,6 +122,29 @@
         })
         seasons.sort().reverse();
         let lastseason = seasons[0];
+        let stats_row = {
+            "games": 0,
+            "180s": 0,
+            "finishes": '',
+            "lollies": 0,
+            "wins": 0,
+            "losses": 0,
+            "20": 0,
+            "21": 0,
+            "12": 0,
+            "02": 0,
+        }
+
+        let stats = {
+            'total': JSON.parse(JSON.stringify(stats_row)),
+            'latest': JSON.parse(JSON.stringify(stats_row)),
+            'earlier': JSON.parse(JSON.stringify(stats_row)),
+        }
+
+        stats.total.comp = 'totaal';
+        stats.latest.comp = lastseason.substr(-9);
+        stats.earlier.comp = 'eerder';
+
 
         d3.select('th#lastseason').text('Seizoen ' + lastseason.substr(-9));
 
@@ -126,7 +190,60 @@
                     per_tegenstander[tegenstander_naam]['wins_season']++
                 }
             }
+
+            let sad = ['total']
+            if (game.comp == lastseason) {
+                sad.push('latest')
+            } else {
+                sad.push('earlier')
+            }
+
+            sad.forEach(function(s) {
+                let x = stats[s]
+                x["games"]++;
+                x["180s"] += (game['speler' + game_speler + '_180s'] || 0)
+                x["lollies"] += (game['speler' + game_speler + '_lollies'] || 0)
+                if (game['speler' + game_speler + '_finishes'] != 0) { x.finishes += ',' + game['speler' + game_speler + '_finishes']; }
+
+                if (game['speler' + game_speler + '_legs'] == 2) {
+                    x.wins++;
+                    if (game['speler' + game_tegenstander + '_legs'] == 1) {
+                        x['21']++
+                    } else {
+                        x['20']++
+                    }
+                } else {
+                    x.losses++;
+                    if (game['speler' + game_speler + '_legs'] == 1) {
+                        x['12']++
+                    } else {
+                        x['02']++
+                    }
+                }
+
+            });
+
         }
+
+        let sadf = ['total', 'earlier', 'latest'];
+        sadf.forEach(function(s) {
+            let x = stats[s]
+            let f = x['finishes'].split(',').sort().reverse().join(', ');
+            x['finishes'] = f.substr(0, f.length - 2);
+        })
+
+        let stats_array = [stats.latest, stats.earlier, stats.total, ]
+        let rows_stats = d3.select('table#stats tbody').selectAll('tr').data(stats_array);
+        let tr = rows_stats.enter().append('tr')
+        tr.append('td').classed('comp', true).text(function(d) { return d.comp; })
+        tr.append('td').text(function(d) { return d.games; })
+        tr.append('td').text(function(d) { return d['20']; })
+        tr.append('td').text(function(d) { return d['21']; })
+        tr.append('td').text(function(d) { return d['12']; })
+        tr.append('td').text(function(d) { return d['02']; })
+        tr.append('td').text(function(d) { return d['180s']; })
+        tr.append('td').text(function(d) { return d['finishes']; })
+        tr.append('td').text(function(d) { return d['lollies']; })
 
         let pt = d3.entries(per_tegenstander)
             .sort(function(a, b) {
@@ -138,7 +255,7 @@
         let newptrows = ptrows.enter().append('tr')
         newptrows.append('td')
             .append('a')
-            .attr('href',function(d) {
+            .attr('href', function(d) {
                 return 'head2head.html?speler=' + s + '&opponent=' + d["key"]
             })
             .text(function(d) { return d["key"] })
