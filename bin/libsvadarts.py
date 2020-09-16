@@ -23,7 +23,13 @@ db = sqlite3.connect(dartssqlitedb)
 # db.isolation_level = None
 
 aliases = {
-    "Andor": "Andor", "Anil": "Anil", "Bas": "Bas", "Bert": "Bert", "Brandon": "Brandon", "Christa": "Christa", "Colin": "Colin", "Ed": "Ed", "Elbert": "Elbert", "Erik H": "Erik H", "Erik": "Erik H", "Ernie": "Ernie", "Frank": "Frank", "Frans": "Frans", "Gert J": "Gert J", "Gert": "Gert J", "Gijs": "Gijs", "Gilbert": "Gilbert", "Hans": "Hans", "Harry": "Harry", "Henri": "Henri", "Jari": "Jari", "Johan": "Johan", "John": "John", "Joost": "Joost", "Joris": "Joris", "JR": "JR", "Kim": "Kim", "Maik": "Maik", "Marianne": "Marianne", "Martin": "Martin", "Menno": "Menno", "Otto": "Otto", "Paplip": "Paplip", "Pietra": "Pietra", "Reyn": "Reyn", "Youri": "Youri"}
+    "Andor": "Andor", "Anil": "Anil", "Bas": "Bas", "Bert": "Bert", "Brandon": "Brandon", 
+    "Christa": "Christa", "Colin": "Colin", "Ed": "Ed", "Elbert": "Elbert", "Erik H": "Erik H", "Erik": "Erik H", 
+    "Ernie": "Ernie", "Frank": "Frank", "Frans": "Frans", "Gert J": "Gert", "Gert": "Gert", "Gijs": "Gijs", "Gilbert": 
+    "Gilbert", "Hans": "Hans", "Harry": "Harry", "Henri": "Henri", "Jari": "Jari", "Johan": "Johan", "John": "John", 
+    "Joost": "Joost", "Joris": "Joris", "JR": "JR", "Kim": "Kim", "Maik": "Maik", "Marianne": "Marianne", "Martin": "Martin", 
+    "Menno": "Menno", "Otto": "Otto", "Paplip": "Paplip", "Pietra": "Pietra", "Reyn": "Reyn", "Youri": "Youri"
+}
 
 
 def load_xlsx(filename):
@@ -146,7 +152,8 @@ def init_clean_db():
 
 def load_all_data_into_db():
     files = ['Austerlitz_seizoen_2016-2017.xlsx', 'Austerlitz_seizoen_2017-2018.xlsx',
-             'Austerlitz_seizoen_2018-2019.xlsx', 'Austerlitz_seizoen_2019-2020.xlsx']
+             'Austerlitz_seizoen_2018-2019.xlsx', 'Austerlitz_seizoen_2019-2020.xlsx',
+             'Austerlitz_seizoen_2020-2021.xlsx']
 
     spelers = {
 
