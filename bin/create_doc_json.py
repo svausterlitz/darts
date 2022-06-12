@@ -12,7 +12,7 @@ script om de (oude) excelbestanden om te zetten naar een bruikbaar json-formaat
 
 def parse_excel(filename):
     df = pd.read_excel(filename)
-    print(df.size)
+    print(df)
 
 
 def main(argv):
