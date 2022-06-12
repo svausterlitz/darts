@@ -1,0 +1,14 @@
+dumper >= 1.0.2
+openpyxl >= 2.4.1
+pytest >= 3.8.1
+pytest-cov >= 2.5.1
+pytest-flask >= 0.10.0
+pytest-watch >= 4.1.0
+python-coveralls >= 2.9.1
+python-dateutil >= 2.6.1
+pyyaml
+redis >= 2.10.5
+requests >= 2.10.0
+sqlalchemy >= 1.0.14
+xlrd >= 1.0.0
+pyopenssl >= 18.0.0

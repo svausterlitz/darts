@@ -120,3 +120,5 @@ data/~*
 /flask_session/
 
 data/svadarts.sqlite3db
+
+.venv/
