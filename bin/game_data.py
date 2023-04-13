@@ -6,8 +6,10 @@
 import pandas as pd
 import sys
 from dataclasses import dataclass
+import os
 
-# import datetime
+
+datapath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
 
 
 @dataclass
@@ -35,7 +37,7 @@ games = pd.DataFrame(
 
 def parse_tm20160219():
     global games
-    df = pd.read_csv("data/tm20160219.csv")
+    df = pd.read_csv(f"{datapath}/tm20160219.csv")
     df["Date"] = pd.to_datetime(df["datum"], format="%Y-%m-%d")
     df[["Player1", "Player2"]] = df[["speler1", "speler2"]]
     df[["Legs1", "Legs2"]] = df[["score1", "score2"]]
@@ -47,7 +49,7 @@ def parse_tm20160219():
 
 def parse_xml_format2016(filename):
     global games
-    xls = pd.ExcelFile(f"data/{filename}")
+    xls = pd.ExcelFile(f"{datapath}/{filename}")
     for sheet in xls.sheet_names:
         if sheet[0:2] != "20":
             continue
@@ -84,7 +86,7 @@ def parse_xml_format2016(filename):
 
 def parse_xml_format2021(filename):
     global games
-    xls = pd.ExcelFile(f"data/{filename}")
+    xls = pd.ExcelFile(f"{datapath}/{filename}")
     for sheet in xls.sheet_names:
         if sheet[0:5] == "Sheet":
             continue
@@ -134,7 +136,7 @@ def parse_xml_format2021(filename):
     # print(df)
 
 
-def main(argv):
+def parse_all_games() -> pd.DataFrame:
     parse_tm20160219()
     parse_xml_format2016("Austerlitz_seizoen_2016-2017.xlsx")
     parse_xml_format2016("Austerlitz_seizoen_2017-2018.xlsx")
@@ -142,6 +144,12 @@ def main(argv):
     parse_xml_format2016("Austerlitz_seizoen_2019-2020.xlsx")
     parse_xml_format2016("Austerlitz_seizoen_2020-2021.xlsx")
     parse_xml_format2021("Austerlitz_seizoen_2021-2022.xlsx")
+
+    return games
+
+
+def main(argv):
+    parse_all_games()
 
     print(games)
 
