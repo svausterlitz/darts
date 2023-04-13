@@ -92,10 +92,46 @@ def parse_xml_format2021(filename):
             continue
 
         df = pd.read_excel(xls, sheet)
+
+        # print(sheet)
+        # print(df)
+
         datestr = sheet[0:10]
         df["Date"] = pd.to_datetime(datestr, format="%Y-%m-%d")
+        df[["Player1", "Player2"]] = df[["Speler 1", "Speler 2"]]
+        df[["Legs1", "Legs2"]] = df[["S1 Legs", "S2 Legs"]]
+        df[["Max1", "Max2"]] = df[["S1 180s", "S2 180s"]]
+        df[["Finishes1", "Finishes2"]] = df[["S1 Finish", "S2 Finish"]]
 
-        print(df)
+        # pandas check if column exists
+        if not "S1 21-" in df.columns:
+            df["S1 21-"] = 0
+        if not "S2 21-" in df.columns:
+            df["S2 21-"] = 0
+
+        df[["TwentyOne1", "TwentyOne2"]] = df[["S1 21-", "S2 21-"]]
+        games = pd.concat(
+            [
+                games,
+                df[
+                    [
+                        "Date",
+                        "Player1",
+                        "Player2",
+                        "Legs1",
+                        "Legs2",
+                        "Max1",
+                        "Max2",
+                        "Finishes1",
+                        "Finishes2",
+                        "TwentyOne1",
+                        "TwentyOne2",
+                    ]
+                ],
+            ],
+            ignore_index=True,
+        )
+    # print(df)
 
 
 def main(argv):
