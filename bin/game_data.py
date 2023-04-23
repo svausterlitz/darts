@@ -136,7 +136,34 @@ def parse_xml_format2021(filename):
     # print(df)
 
 
+aliases = {
+    "Jekel": {"*": "GertJ"},
+    "Gert": {"*": "GertJ"},
+    "Gert J": {"*": "GertJ"},
+    "Ed": {
+        "2015-2016": "EdG",
+        "2016-2017": "EdG",
+        "2017-2018": "EdG",
+        "*": "Ed",
+    },
+}
+
+
+def replace_alias(game, player: str):
+    alias = aliases.get(player)
+    if alias:
+        season = game["Season"]
+        new_name = alias.get(season)
+        if new_name:
+            return new_name
+        if "*" in alias:
+            return alias["*"]
+    return player
+
+
 def parse_all_games() -> pd.DataFrame:
+    global games
+
     parse_tm20160219()
     parse_xml_format2016("Austerlitz_seizoen_2016-2017.xlsx")
     parse_xml_format2016("Austerlitz_seizoen_2017-2018.xlsx")
@@ -144,12 +171,30 @@ def parse_all_games() -> pd.DataFrame:
     parse_xml_format2016("Austerlitz_seizoen_2019-2020.xlsx")
     parse_xml_format2016("Austerlitz_seizoen_2020-2021.xlsx")
     parse_xml_format2021("Austerlitz_seizoen_2021-2022.xlsx")
+    games["Year"] = games["Date"].dt.year
+    games["Season"] = games.apply(
+        lambda game: f'{game["Year"]}-{game["Year"]+1}'
+        if game["Date"].month >= 7
+        else f'{game["Year"]-1}-{game["Year"]}',
+        result_type="reduce",
+        axis=1,
+    )
+    games["Player1"] = games.apply(
+        lambda game: replace_alias(game, game["Player1"]),
+        result_type="reduce",
+        axis=1,
+    )
+    games["Player2"] = games.apply(
+        lambda game: replace_alias(game, game["Player2"]),
+        result_type="reduce",
+        axis=1,
+    )
 
     return games
 
 
 def main(argv):
-    parse_all_games()
+    games = parse_all_games()
 
     print(games)
 
